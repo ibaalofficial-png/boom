@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Boom Player - Aurora Edition</title>
+<link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#030712">
+<!-- Library pembaca Artwork MP3 Lokal -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+</head>
+<body>
+
+<div class="background"></div>
+
+<!-- Modal Tambah Link MP3 -->
+<div id="linkModal" class="modal-overlay">
+  <div class="modal-content glass">
+    <h3 style="font-size: 12px; margin-bottom: 6px; color: var(--neon-cyan);">🌐 Tambah Link MP3</h3>
+    <input type="text" id="arcTitle" placeholder="Judul Lagu..." style="width: 100%; height: 28px; padding: 0 8px; background: #000000; border: 1px solid var(--glass-border); border-radius: 8px; color: #fff; font-size: 10px; margin-bottom: 6px; outline: none;">
+    <input type="text" id="arcUrl" placeholder="https://files.catbox.moe/xxx.mp3" style="width: 100%; height: 28px; padding: 0 8px; background: #000000; border: 1px solid var(--glass-border); border-radius: 8px; color: #fff; font-size: 10px; margin-bottom: 10px; outline: none;">
+    <div style="display: flex; gap: 6px;">
+      <button id="closeLinkModal" style="flex: 1; height: 28px; background: #0a0a0a; border: 1px solid var(--glass-border); color: #fff; border-radius: 8px; font-size: 10px; cursor: pointer;">Batal</button>
+      <button id="saveLinkSong" style="flex: 1; height: 28px; background: var(--neon-cyan); border: none; color: #000; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer;">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<main class="app">
+  <header class="header glass">
+    <h1>🎵 Boom Player</h1>
+    <button id="menu">☰</button>
+  </header>
+
+  <section class="player glass">
+    <!-- Label wrapper untuk ganti artwork kustom -->
+    <label for="customArtFileInput" class="album" id="albumContainer" title="Ketuk untuk ganti Artwork">
+      <img id="cover" src="" alt="">
+    </label>
+    <input type="file" id="customArtFileInput" style="display:none;" accept="image/*">
+    
+    <div class="info-song">
+      <h2 id="title">Pilih Lagu</h2>
+      <p id="artist">Kencing Kacili TV</p>
+    </div>
+    
+    <div class="progress">
+      <span id="current">0:00</span>
+      <input type="range" id="progress" value="0" min="0" max="100">
+      <span id="duration">0:00</span>
+    </div>
+
+    <!-- Playlist & Import Bar -->
+    <div class="playlist-bar">
+      <select id="playlistDropdown">
+        <option value="PrivateVault">🔒 PrivateVault</option>
+        <option value="Cloud (Global)">🌐 Cloud (Global)</option>
+        <option value="Dangdut">🔥 Dangdut</option>
+        <option value="DJ Indonesia">🎧 DJ Indonesia</option>
+        <option value="Hiphop">🎤 Hiphop</option>
+        <option value="Lagu Jawa">🪕 Lagu Jawa</option>
+      </select>
+      <button id="addPlaylistBtn" class="action-chip">+ Playlist</button>
+      <button id="openLinkModal" class="action-chip">+ Link</button>
+      <label for="localFileInput" class="custom-file-btn">📁 Import</label>
+      <!-- Fix import extension: mencakup semua jenis file audio populer -->
+      <input type="file" id="localFileInput" style="display:none;" multiple accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac">
+    </div>
+
+    <!-- Playlist Box -->
+    <div class="playlist-box" id="playlistBox">
+      <div id="playlistList" style="text-align:center; padding:10px; font-size:9px; opacity:0.7;">Memuat data...</div>
+    </div>
+
+    <div class="controls-wrapper">
+      <div class="media-row">
+        <button id="prevBtn">Prev</button>
+        <button id="playBtn">Play</button>
+        <button id="nextBtn">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Visualizer Section -->
+  <section class="visual glass">
+    <canvas id="visualizer"></canvas>
+  </section>
+
+  <!-- Equalizer Section -->
+  <section class="equalizer glass">
+    <div class="preset">
+      <button data-preset="flat">Flat</button>
+      <button data-preset="bass">Bass</button>
+      <button data-preset="vocal">Vocal</button>
+      <button data-preset="rock">Rock</button>
+      <button data-preset="edm">EDM</button>
+    </div>
+
+    <div class="custom-eq-dropdown">
+      <select id="customEqSelect">
+          <option value="" disabled selected>🎛️ Pilih Preset .lua</option>
+          <option value="airpods_edit">Airpods Edit</option>
+          <option value="airpods_edit2">Airpods Edit 2</option>
+          <option value="bass_enak">Bass Enak</option>
+          <option value="bass2">Bass 2</option>
+          <option value="basssss">Basssss</option>
+          <option value="current_bands">Current Bands</option>
+          <option value="pubg_bass">PUBG Bass</option>
+          <option value="pubg_bass2">PUBG Bass 2</option>
+          <option value="pubg_bassss">PUBG Bassss</option>
+          <option value="pubg">PUBG Original</option>
+      </select>
+    </div>
+  </section>
+</main>
+
+<audio id="audio" crossorigin="anonymous" playsinline webkit-playsinline preload="auto"></audio>
+
+<script src="js/equalizer.js"></script>
+<script src="js/visualizer.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const audio = document.getElementById("audio");
+    const playBtn = document.getElementById("playBtn");
+    const progressInput = document.getElementById("progress");
+    const currentTimeSpan = document.getElementById("current");
+    const durationSpan = document.getElementById("duration");
+
+    const playlistDropdown = document.getElementById("playlistDropdown");
+    const linkModal = document.getElementById("linkModal");
+    const openLinkModal = document.getElementById("openLinkModal");
+    const closeLinkModal = document.getElementById("closeLinkModal");
+    const saveLinkSong = document.getElementById("saveLinkSong");
+    const addPlaylistBtn = document.getElementById("addPlaylistBtn");
+    const arcTitle = document.getElementById("arcTitle");
+    const arcUrl = document.getElementById("arcUrl");
+    const localFileInput = document.getElementById("localFileInput");
+    const coverImg = document.getElementById("cover");
+    const customEqSelect = document.getElementById("customEqSelect");
+    const customArtFileInput = document.getElementById("customArtFileInput");
+
+    // Generator Default Artwork Headphone secara Sinkron (Menghindari bug kotak teks "Cover")
+    function createDefaultCoverDataURL() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, 512, 512);
+      
+      ctx.strokeStyle = '#00f3ff';
+      ctx.lineWidth = 32;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      // Bando Headphone
+      ctx.beginPath();
+      ctx.arc(256, 270, 150, Math.PI, 0, false);
+      ctx.stroke();
+      
+      // Earcup Kiri & Kanan (Pink/Orange)
+      ctx.fillStyle = '#ff2a85';
+      ctx.beginPath();
+      ctx.roundRect(76, 240, 65, 140, 25);
+      ctx.roundRect(371, 240, 65, 140, 25);
+      ctx.fill();
+
+      // Bantalan Earcup Dalam
+      ctx.fillStyle = '#333333';
+      ctx.beginPath();
+      ctx.roundRect(90, 260, 37, 110, 15);
+      ctx.roundRect(385, 260, 37, 110, 15);
+      ctx.fill();
+
+      // Gelombang Audio di Tengah
+      ctx.strokeStyle = '#00f3ff';
+      ctx.lineWidth = 20;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(180, 270);
+      ctx.lineTo(215, 270);
+      ctx.lineTo(235, 180);
+      ctx.lineTo(260, 360);
+      ctx.lineTo(285, 220);
+      ctx.lineTo(310, 270);
+      ctx.lineTo(332, 270);
+      ctx.stroke();
+
+      return canvas.toDataURL('image/png');
+    }
+
+    const defaultHeadphoneCover = createDefaultCoverDataURL();
+    coverImg.src = defaultHeadphoneCover;
+
+    const STORAGE_KEY = "boom_player_permanent_data";
+
+    let savedPlaylists = localStorage.getItem(STORAGE_KEY);
+    let playlists = savedPlaylists ? JSON.parse(savedPlaylists) : {
+      "PrivateVault": [],
+      "Cloud (Global)": [],
+      "Dangdut": [],
+      "DJ Indonesia": [],
+      "Hiphop": [],
+      "Lagu Jawa": []
+    };
+    
+    playlistDropdown.value = "PrivateVault";
+    let currentPlaylistKey = playlistDropdown.value;
+    let currentTrackIndex = 0;
+
+    function saveToStorage() {
+      let cleanPlaylists = {};
+      Object.keys(playlists).forEach(key => {
+        cleanPlaylists[key] = playlists[key].map(song => ({
+          id: song.id,
+          title: song.title,
+          artist: song.artist,
+          cover: song.cover,
+          url: song.url
+        })).filter(song => !song.url.startsWith("blob:"));
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanPlaylists));
+    }
+
+    playlistDropdown.addEventListener("change", (e) => {
+      let targetKey = e.target.value;
+      
+      if (targetKey === "Cloud (Global)") {
+        let password = prompt("🔒 Masukkan Password untuk Playlist Cloud:");
+        if (password !== "7890") {
+          alert("❌ Password salah, bos!");
+          e.target.value = currentPlaylistKey;
+          return;
+        }
+      }
+
+      currentPlaylistKey = targetKey;
+      filterActivePlaylist();
+    });
+
+    customEqSelect.addEventListener("change", function() {
+      if (typeof applyPreset === 'function') {
+        applyPreset(this.value);
+      }
+    });
+
+    // Ganti artwork kustom permanen (Base64)
+    customArtFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      let activeList = playlists[currentPlaylistKey] || [];
+      if (activeList.length === 0) {
+        alert("Putar atau pilih lagu terlebih dahulu di playlist ini!");
+        customArtFileInput.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64Img = event.target.result;
+        
+        activeList[currentTrackIndex].cover = base64Img;
+        coverImg.src = base64Img;
+        
+        saveToStorage();
+        updatePlayerInfo(activeList[currentTrackIndex]);
+        renderPlaylistUI();
+        customArtFileInput.value = "";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && audio.paused && audio.src) {
+        audio.play().catch(() => {});
+      }
+    });
+
+    window.addEventListener("blur", () => {
+      if (!audio.paused && 'mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'playing';
+      }
+    });
+
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setActionHandler('play', () => { audio.play(); playBtn.innerText = "Pause"; });
+      navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); playBtn.innerText = "Play"; });
+      navigator.mediaSession.setActionHandler('previoustrack', () => { document.getElementById("prevBtn").click(); });
+      navigator.mediaSession.setActionHandler('nexttrack', () => { document.getElementById("nextBtn").click(); });
+    }
+
+    openLinkModal.addEventListener("click", () => { 
+      linkModal.style.display = "flex"; 
+      arcTitle.value = "";
+      arcUrl.value = "";
+    });
+    
+    closeLinkModal.addEventListener("click", () => { linkModal.style.display = "none"; });
+
+    addPlaylistBtn.addEventListener("click", () => {
+      let newName = prompt("Masukkan nama playlist / genre baru:");
+      if (!newName) return;
+      newName = newName.trim();
+      if (playlists[newName]) {
+        alert("Playlist sudah ada!");
+        return;
+      }
+      playlists[newName] = [];
+      
+      let opt = document.createElement("option");
+      opt.value = newName;
+      opt.innerText = newName;
+      playlistDropdown.appendChild(opt);
+      playlistDropdown.value = newName;
+      
+      currentPlaylistKey = newName;
+      saveToStorage();
+      filterActivePlaylist();
+    });
+
+    // Ekstrak Artwork dari Tag ID3 MP3 Lokal
+    function parsePictureToUrl(picture) {
+      if (!picture) return defaultHeadphoneCover;
+      try {
+        let { data, format } = picture;
+        let mime = format || "image/jpeg";
+        if (!mime.startsWith("image/")) mime = "image/" + mime;
+        const byteArray = new Uint8Array(data);
+        const blob = new Blob([byteArray], { type: mime });
+        return URL.createObjectURL(blob);
+      } catch (err) {
+        return defaultHeadphoneCover;
+      }
+    }
+
+    saveLinkSong.addEventListener("click", () => {
+      const title = arcTitle.value.trim();
+      const url = arcUrl.value.trim();
+
+      if (!title || !url) {
+        alert("Judul dan URL wajib diisi!");
+        return;
+      }
+
+      if (!playlists[currentPlaylistKey]) playlists[currentPlaylistKey] = [];
+
+      playlists[currentPlaylistKey].push({
+        id: Date.now() + Math.random(),
+        title: title,
+        artist: "Kencing Kacili TV",
+        cover: defaultHeadphoneCover,
+        url: url
+      });
+
+      saveToStorage();
+      linkModal.style.display = "none";
+      filterActivePlaylist();
+    });
+
+    // IMPORT LAGU LOKAL DENGAN EKSTRAK ID3 ARTWORK OTOMATIS
+    localFileInput.addEventListener("change", (e) => {
+      const files = e.target.files;
+      if (files.length === 0) return;
+
+      if (!playlists[currentPlaylistKey]) playlists[currentPlaylistKey] = [];
+
+      Array.from(files).forEach(file => {
+        const localBlobUrl = URL.createObjectURL(file);
+
+        window.jsmediatags.read(file, {
+          onSuccess: function(tag) {
+            let title = tag.tags.title || file.name.replace(/\.[^/.]+$/, "");
+            let artist = tag.tags.artist || "Kencing Kacili TV";
+            let coverUrl = parsePictureToUrl(tag.tags.picture); // Otomatis ambil gambar dari MP3
+
+            playlists[currentPlaylistKey].push({
+              id: Date.now() + Math.random(),
+              title: title,
+              artist: artist,
+              cover: coverUrl,
+              url: localBlobUrl
+            });
+            renderPlaylistUI();
+            if (!audio.src) {
+              currentTrackIndex = playlists[currentPlaylistKey].length - 1;
+              playTrack(currentTrackIndex);
+            }
+          },
+          onError: function() {
+            playlists[currentPlaylistKey].push({
+              id: Date.now() + Math.random(),
+              title: file.name.replace(/\.[^/.]+$/, ""),
+              artist: "Kencing Kacili TV",
+              cover: defaultHeadphoneCover,
+              url: localBlobUrl
+            });
+            renderPlaylistUI();
+            if (!audio.src) {
+              currentTrackIndex = playlists[currentPlaylistKey].length - 1;
+              playTrack(currentTrackIndex);
+            }
+          }
+        });
+      });
+      localFileInput.value = "";
+    });
+
+    function filterActivePlaylist() {
+      if (!playlists[currentPlaylistKey]) {
+        playlists[currentPlaylistKey] = [];
+      }
+
+      renderPlaylistUI();
+      let activeList = playlists[currentPlaylistKey];
+      if (activeList.length > 0 && !audio.src) {
+        currentTrackIndex = 0;
+        updatePlayerInfo(activeList[0]);
+      }
+    }
+
+    function renderPlaylistUI() {
+      const list = document.getElementById('playlistList');
+      if (!list) return;
+      list.innerHTML = '';
+      
+      let activeList = playlists[currentPlaylistKey] || [];
+
+      if (activeList.length === 0) {
+        list.innerHTML = '<div style="text-align:center; padding:10px; font-size:9px; opacity:0.7;">Belum ada lagu di playlist ini.</div>';
+        return;
+      }
+
+      activeList.forEach((song, index) => {
+        const row = document.createElement('div');
+        row.className = `song-row ${index === currentTrackIndex ? 'active' : ''}`;
+        
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'song-title-text';
+        titleSpan.innerText = `${index + 1}. ${song.title}`;
+        titleSpan.onclick = () => playTrack(index);
+        row.appendChild(titleSpan);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerText = "❌";
+        deleteBtn.style.background = "transparent";
+        deleteBtn.style.border = "none";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.fontSize = "10px";
+        deleteBtn.style.padding = "0 4px";
+        deleteBtn.title = "Hapus lagu";
+        
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (confirm(`Hapus lagu "${song.title}" dari playlist?`)) {
+            playlists[currentPlaylistKey].splice(index, 1);
+            saveToStorage();
+            filterActivePlaylist();
+          }
+        };
+        row.appendChild(deleteBtn);
+
+        list.appendChild(row);
+      });
+
+      const activeRow = list.querySelector('.song-row.active');
+      if (activeRow) {
+        activeRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function playTrack(index) {
+      let activeList = playlists[currentPlaylistKey] || [];
+      if (activeList.length === 0) return;
+      
+      currentTrackIndex = (index + activeList.length) % activeList.length;
+      const song = activeList[currentTrackIndex];
+
+      playBtn.innerText = "⌛";
+      audio.pause();
+      audio.src = song.url;
+
+      audio.play().then(() => {
+        playBtn.innerText = "Pause";
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = 'playing';
+        }
+      }).catch(err => {
+        console.log("Play error:", err);
+        playBtn.innerText = "Play";
+      });
+
+      updatePlayerInfo(song);
+      renderPlaylistUI();
+    }
+
+    function updatePlayerInfo(song) {
+      document.getElementById('title').innerText = song.title;
+      document.getElementById('artist').innerText = song.artist || "Kencing Kacili TV";
+      coverImg.src = song.cover || defaultHeadphoneCover;
+
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: song.title,
+          artist: song.artist || "Kencing Kacili TV",
+          album: "Boom Player",
+          artwork: [
+            { src: song.cover || defaultHeadphoneCover, sizes: '512x512', type: 'image/png' }
+          ]
+        });
+
+        navigator.mediaSession.playbackState = 'playing';
+      }
+    }
+
+    playBtn.addEventListener("click", () => {
+      let activeList = playlists[currentPlaylistKey] || [];
+      if (activeList.length === 0) {
+        alert("Playlist masih kosong!");
+        return;
+      }
+      if (audio.paused) {
+        if (!audio.src) playTrack(0);
+        else {
+          audio.play();
+          if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+        }
+        playBtn.innerText = "Pause";
+      } else {
+        audio.pause();
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+        playBtn.innerText = "Play";
+      }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      let activeList = playlists[currentPlaylistKey] || [];
+      if (activeList.length > 0) playTrack(currentTrackIndex + 1);
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      let activeList = playlists[currentPlaylistKey] || [];
+      if (activeList.length > 0) playTrack(currentTrackIndex - 1);
+    });
+
+    audio.onended = () => {
+      let activeList = playlists[currentPlaylistKey] || [];
+      if (activeList.length > 0) playTrack(currentTrackIndex + 1);
+    };
+
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        progressInput.value = (audio.currentTime / audio.duration) * 100;
+        currentTimeSpan.innerText = formatTime(audio.currentTime);
+        durationSpan.innerText = formatTime(audio.duration);
+      }
+    });
+
+    progressInput.addEventListener('input', (e) => {
+      if (audio.duration) {
+        audio.currentTime = (e.target.value / 100) * audio.duration;
+      }
+    });
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    const eqButtons = document.querySelectorAll('.preset button');
+    eqButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        eqButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        customEqSelect.value = "";
+      });
+    });
+
+    filterActivePlaylist();
+  });
+</script>
+
+</body>
+</html>
