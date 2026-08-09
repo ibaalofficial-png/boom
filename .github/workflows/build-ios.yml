@@ -1,0 +1,163 @@
+name: Build Boom Music iOS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check files
+        run: |
+          echo "===== FILES ====="
+          ls -la
+
+          test -f package.json || {
+            echo "ERROR: package.json tidak ditemukan!"
+            exit 1
+          }
+
+          test -f index.html || {
+            echo "ERROR: index.html tidak ditemukan!"
+            exit 1
+          }
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Prepare www
+        run: |
+          rm -rf www
+          mkdir -p www
+
+          cp index.html www/
+
+          for file in \
+            style.css \
+            Player.js \
+            Visualizer.js \
+            Equalizer.js
+          do
+            if [ -f "$file" ]; then
+              cp "$file" www/
+            fi
+          done
+
+          if [ -d assets ]; then
+            cp -R assets www/
+          fi
+
+          if [ -d img ]; then
+            cp -R img www/
+          fi
+
+          echo "===== WWW ====="
+          find www -type f
+
+      - name: Create Capacitor config
+        run: |
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.ibaal.eqefun",
+            "appName": "eQe FUN",
+            "webDir": "www"
+          }
+          EOF
+
+      - name: Create fresh iOS project
+        run: |
+          rm -rf ios
+          npx cap add ios
+          npx cap sync ios
+
+      - name: Set iOS 14
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          for file in Path("ios").rglob("project.pbxproj"):
+              text = file.read_text()
+
+              text = re.sub(
+                  r'IPHONEOS_DEPLOYMENT_TARGET = [^;]+;',
+                  'IPHONEOS_DEPLOYMENT_TARGET = 14.0;',
+                  text
+              )
+
+              file.write_text(text)
+
+              print("iOS 14 set:", file)
+          PY
+
+      - name: Build iOS
+        run: |
+          cd ios/App
+
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$GITHUB_WORKSPACE/BoomMusic.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            IPHONEOS_DEPLOYMENT_TARGET=14.0 \
+            archive
+
+      - name: Create IPA
+        run: |
+          set -e
+
+          rm -rf Payload
+          mkdir Payload
+
+          APP=$(find \
+            BoomMusic.xcarchive/Products/Applications \
+            -maxdepth 1 \
+            -name "*.app" \
+            -print -quit)
+
+          if [ -z "$APP" ]; then
+            echo "ERROR: APP tidak ditemukan!"
+            exit 1
+          fi
+
+          cp -R "$APP" Payload/
+
+          zip -r BoomMusic-unsigned.ipa Payload
+
+          ls -lh BoomMusic-unsigned.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: BoomMusic-iOS
+          path: BoomMusic-unsigned.ipa
+
+      - name: Upload Xcode Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: BoomMusic-XCArchive
+          path: BoomMusic.xcarchive
