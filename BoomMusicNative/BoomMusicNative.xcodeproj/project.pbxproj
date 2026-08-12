@@ -1,0 +1,57 @@
+// !$*UTF8*$!
+{
+archiveVersion = 1;
+classes = { };
+objectVersion = 56;
+objects = {
+9AD0E8039DB84E6B8713DD77 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+	89AD5603DA4C4E2BA4F6DD82 /* BoomWrapperApp.swift in Sources */,
+	410ED1F5F8AC4237BFB59E89 /* ContentView.swift in Sources */,
+	CB7F4C1EA49943E39874942C /* WebView.swift in Sources */,
+	423CDB90ACE844DEBF8363F2 /* BridgeHandler.swift in Sources */,
+	99BE43B3531B421E9480B31E /* AudioManager.swift in Sources */,
+	45B07230258F44CDBCE11AF4 /* NowPlayingManager.swift in Sources */,
+	ADCD59C755E844B5A692B7BB /* Theme.swift in Sources */,
+	EEBBF0642277437FAFFF3E57 /* GlassBackground.swift in Sources */,
+	D74D2084E18245E48F486C81 /* GlassNavigation.swift in Sources */,
+); runOnlyForDeploymentPostprocessing = 0; };
+F6EAD6F0E8B840AF8649FB2E = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (CEEB2BA79509465BB97931AD /* WebResources in Resources */,); runOnlyForDeploymentPostprocessing = 0; };
+0306EED3A0DC4A939BC7232B = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+89AD5603DA4C4E2BA4F6DD82 = {isa = PBXBuildFile; fileRef = A739C0683877484895283506; };
+410ED1F5F8AC4237BFB59E89 = {isa = PBXBuildFile; fileRef = ADA117C37BED42ABA5382A43; };
+CB7F4C1EA49943E39874942C = {isa = PBXBuildFile; fileRef = DCFB55AB7DF14592988AFE7B; };
+423CDB90ACE844DEBF8363F2 = {isa = PBXBuildFile; fileRef = 25028125C436402099E98B09; };
+99BE43B3531B421E9480B31E = {isa = PBXBuildFile; fileRef = 9795D70A8E5B4498AB9930B6; };
+45B07230258F44CDBCE11AF4 = {isa = PBXBuildFile; fileRef = FDC862837A1D4C889471D6D9; };
+ADCD59C755E844B5A692B7BB = {isa = PBXBuildFile; fileRef = 5CAB23B9C0994B61ADC73AA5; };
+EEBBF0642277437FAFFF3E57 = {isa = PBXBuildFile; fileRef = 70C4B5144A2047FBA0690A09; };
+D74D2084E18245E48F486C81 = {isa = PBXBuildFile; fileRef = 819C9B24C78C4D65804B899C; };
+CEEB2BA79509465BB97931AD = {isa = PBXBuildFile; fileRef = 6E76F4825CF847D5A0BC695C; };
+A739C0683877484895283506 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BoomWrapperApp.swift"; sourceTree = "<group>"; };
+ADA117C37BED42ABA5382A43 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentView.swift"; sourceTree = "<group>"; };
+DCFB55AB7DF14592988AFE7B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WebView.swift"; sourceTree = "<group>"; };
+25028125C436402099E98B09 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BridgeHandler.swift"; sourceTree = "<group>"; };
+9795D70A8E5B4498AB9930B6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioManager.swift"; sourceTree = "<group>"; };
+FDC862837A1D4C889471D6D9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NowPlayingManager.swift"; sourceTree = "<group>"; };
+5CAB23B9C0994B61ADC73AA5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Theme.swift"; sourceTree = "<group>"; };
+70C4B5144A2047FBA0690A09 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GlassBackground.swift"; sourceTree = "<group>"; };
+819C9B24C78C4D65804B899C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GlassNavigation.swift"; sourceTree = "<group>"; };
+6E76F4825CF847D5A0BC695C = {isa = PBXFileReference; lastKnownFileType = folder; path = "WebResources"; sourceTree = "<group>"; };
+0061899BAA444AFBA974C909 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+9E8CF8AB14564B2DB76628A3 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BoomMusicNative.app; sourceTree = BUILT_PRODUCTS_DIR; };
+76DFEA63452946D99A7AC64C = {isa = PBXGroup; children = (A739C0683877484895283506,ADA117C37BED42ABA5382A43,DCFB55AB7DF14592988AFE7B,25028125C436402099E98B09,9795D70A8E5B4498AB9930B6,FDC862837A1D4C889471D6D9, 1B5918561BC945418DB9056C); path = Sources; sourceTree = "<group>"; };
+1B5918561BC945418DB9056C = {isa = PBXGroup; children = (5CAB23B9C0994B61ADC73AA5,70C4B5144A2047FBA0690A09,819C9B24C78C4D65804B899C); path = UI; sourceTree = "<group>"; };
+997917FBE4C042D3AEA9B82F = {isa = PBXGroup; children = (6E76F4825CF847D5A0BC695C); path = WebResources; sourceTree = "<group>"; };
+7F0D596B60C34639A1938173 = {isa = PBXGroup; children = (9E8CF8AB14564B2DB76628A3); name = Products; sourceTree = "<group>"; };
+73A79F6AC1A14B62892D9473 = {isa = PBXGroup; children = (76DFEA63452946D99A7AC64C, 997917FBE4C042D3AEA9B82F, 0061899BAA444AFBA974C909, 7F0D596B60C34639A1938173); sourceTree = "<group>"; };
+21C94124B0CA47AFA422E0DE = {isa = PBXNativeTarget; buildConfigurationList = A5C40D3ED19A4C6E8C0BBB7B; buildPhases = (9AD0E8039DB84E6B8713DD77, 0306EED3A0DC4A939BC7232B, F6EAD6F0E8B840AF8649FB2E); buildRules = (); dependencies = (); name = BoomMusicNative; productName = BoomMusicNative; productReference = 9E8CF8AB14564B2DB76628A3; productType = "com.apple.product-type.application"; };
+ADBCF5A490624F14AA575965 = {isa = PBXProject; attributes = {LastUpgradeCheck = 1600; TargetAttributes = { 21C94124B0CA47AFA422E0DE = {CreatedOnToolsVersion = 16.0; }; }; }; buildConfigurationList = 9E6A8BC7E584497CBF095069; compatibilityVersion = "Xcode 3.2"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base); mainGroup = 73A79F6AC1A14B62892D9473; productRefGroup = 7F0D596B60C34639A1938173; projectDirPath = ""; projectRoot = ""; targets = (21C94124B0CA47AFA422E0DE); };
+9E6A8BC7E584497CBF095069 = {isa = XCConfigurationList; buildConfigurations = (C3CDFF01A2C643A7B232493F, 86DD5A514BAD440B9744FDEB); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+A5C40D3ED19A4C6E8C0BBB7B = {isa = XCConfigurationList; buildConfigurations = (F3CB3B5FDD7B4648B018913A, 5BB1695127E74EAFB6FEAB22); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+C3CDFF01A2C643A7B232493F = {isa = XCBuildConfiguration; buildSettings = {INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; PRODUCT_BUNDLE_IDENTIFIER = com.ibaal.boommusic; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; CODE_SIGN_STYLE = Automatic; }; name = Debug; };
+86DD5A514BAD440B9744FDEB = {isa = XCBuildConfiguration; buildSettings = {INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; PRODUCT_BUNDLE_IDENTIFIER = com.ibaal.boommusic; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; CODE_SIGN_STYLE = Automatic; }; name = Release; };
+F3CB3B5FDD7B4648B018913A = {isa = XCBuildConfiguration; buildSettings = {INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; PRODUCT_BUNDLE_IDENTIFIER = com.ibaal.boommusic; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; CODE_SIGN_STYLE = Automatic; }; name = Debug; };
+5BB1695127E74EAFB6FEAB22 = {isa = XCBuildConfiguration; buildSettings = {INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; PRODUCT_BUNDLE_IDENTIFIER = com.ibaal.boommusic; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; CODE_SIGN_STYLE = Automatic; }; name = Release; };
+};
+rootObject = ADBCF5A490624F14AA575965;
+}
